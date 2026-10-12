@@ -17,11 +17,34 @@ public class MulticastConfig {
         System.setProperty("java.net.preferIPv4Stack", "true");
     }
 
-    // Cổng UDP dùng chung cho cả Unicast và Multicast
+    // Cổng UDP dùng chung cho cả Unicast, Multicast và Broadcast
     public static final int DEFAULT_PORT = 8888;
 
-    // Địa chỉ Multicast đại diện cho "tất cả máy trên mạng (*)"
-    public static final String ALL_HOSTS_ADDRESS = "239.255.255.255";
+    // Địa chỉ Broadcast thuần UDP đại diện cho "tất cả máy trên mạng (*)"
+    public static final String BROADCAST_ADDRESS = "255.255.255.255";
+
+    /**
+     * Lấy địa chỉ Broadcast chính xác của mạng LAN (Subnet Broadcast) hoặc 255.255.255.255
+     */
+    public static InetAddress getBroadcastAddress() {
+        try {
+            NetworkInterface ni = getPreferredNetworkInterface();
+            if (ni != null) {
+                for (java.net.InterfaceAddress ia : ni.getInterfaceAddresses()) {
+                    if (ia.getBroadcast() != null) {
+                        return ia.getBroadcast();
+                    }
+                }
+            }
+            return InetAddress.getByName(BROADCAST_ADDRESS);
+        } catch (Exception e) {
+            try {
+                return InetAddress.getByName(BROADCAST_ADDRESS);
+            } catch (Exception ex) {
+                return null;
+            }
+        }
+    }
 
     // Bảng ánh xạ group có sẵn (người dùng có thể gõ tên nhóm bất kỳ)
     private static final Map<String, String> PREDEFINED_GROUPS = new HashMap<>();

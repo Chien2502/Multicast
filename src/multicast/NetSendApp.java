@@ -27,6 +27,7 @@ public class NetSendApp {
     public NetSendApp(int port) throws IOException {
         this.port = port;
         this.sendSocket = new MulticastSocket();
+        this.sendSocket.setBroadcast(true); // Bật chế độ gửi Broadcast thuần UDP
         NetworkInterface netIf = MulticastConfig.getPreferredNetworkInterface();
         if (netIf != null) {
             try {
@@ -52,7 +53,7 @@ public class NetSendApp {
     }
 
     /**
-     * Gửi tin nhắn đến địa chỉ IP đích (Unicast hoặc Multicast)
+     * Gửi tin nhắn đến địa chỉ IP đích (Unicast, Multicast hoặc Broadcast)
      */
     public void sendMessage(String target, String message) {
         try {
@@ -60,9 +61,9 @@ public class NetSendApp {
             String headerInfo;
 
             if ("*".equals(target)) {
-                // 1. Gửi đến toàn bộ các máy trong mạng (*)
-                destAddress = InetAddress.getByName(MulticastConfig.ALL_HOSTS_ADDRESS);
-                headerInfo = "[TOÀN MẠNG (*)] " + message;
+                // 1. Gửi Broadcast thuần đến toàn bộ các máy trong mạng (*)
+                destAddress = MulticastConfig.getBroadcastAddress();
+                headerInfo = "[BROADCAST (*)] " + message;
             } else if (IPV4_PATTERN.matcher(target).matches() || "localhost".equalsIgnoreCase(target)) {
                 // 2. Gửi Unicast đến 1 máy tính đích cụ thể
                 destAddress = InetAddress.getByName(target);
@@ -132,7 +133,7 @@ public class NetSendApp {
         if ("groups".equalsIgnoreCase(trimmed)) {
             System.out.println("📋 Danh sách IP Multicast đang lắng nghe:");
             for (String g : listener.getJoinedGroups()) {
-                System.out.println("   - " + g + (MulticastConfig.ALL_HOSTS_ADDRESS.equals(g) ? " (Nhóm toàn mạng *)" : ""));
+                System.out.println("   - " + g);
             }
             return;
         }
@@ -155,7 +156,7 @@ public class NetSendApp {
         System.out.println("      VD: net send 192.168.1.15 Xin chao ban!");
         System.out.println("    - Đến một nhóm máy (Multicast): net send <group> <message>");
         System.out.println("      VD: net send group1 Hop nhom luc 9h nhe");
-        System.out.println("    - Đến toàn bộ mạng (*):         net send * <message>");
+        System.out.println("    - Đến toàn bộ mạng (*):         net send * <message> (Broadcast UDP)");
         System.out.println("      VD: net send * Thong bao toan mang");
         System.out.println(" 2. Quản lý nhóm (để nhận tin nhắn của nhóm đó):");
         System.out.println("    - join <group>  : Tham gia vào nhóm (VD: join group1)");
@@ -190,7 +191,7 @@ public class NetSendApp {
             System.out.println("======================================================================");
             System.out.printf("  Máy này (IP):  %s%n", MulticastConfig.getLocalHostAddress());
             System.out.printf("  Cổng UDP:      %d%n", port);
-            System.out.printf("  Mặc định join: %s (Toàn mạng *)%n", MulticastConfig.ALL_HOSTS_ADDRESS);
+            System.out.printf("  Chế độ (*):    Broadcast thuần (%s)%n", MulticastConfig.BROADCAST_ADDRESS);
             System.out.println("======================================================================");
             printHelp();
 

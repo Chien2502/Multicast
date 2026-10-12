@@ -88,7 +88,7 @@ public class NetSendGui extends JFrame {
         leftPanel.setBorder(new TitledBorder("Quản lý nhóm (Multicast)"));
 
         groupListModel = new DefaultListModel<>();
-        groupListModel.addElement("* (Toàn mạng)");
+        groupListModel.addElement("⭐ [Broadcast] Toàn mạng");
         groupList = new JList<>(groupListModel);
         groupList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane groupScroll = new JScrollPane(groupList);

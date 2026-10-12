@@ -34,14 +34,12 @@ public class MessageListener implements Runnable {
         // Khởi tạo MulticastSocket và cho phép chia sẻ cổng (SO_REUSEADDR)
         this.socket = new MulticastSocket(port);
         this.socket.setReuseAddress(true);
+        this.socket.setBroadcast(true); // Cho phép nhận gói tin UDP Broadcast thuần
         if (this.netIf != null) {
             try {
                 this.socket.setNetworkInterface(this.netIf);
             } catch (Exception ignored) {}
         }
-
-        // Mặc định join vào nhóm nhận tin nhắn toàn mạng (*)
-        joinGroup(MulticastConfig.ALL_HOSTS_ADDRESS);
     }
 
     /**

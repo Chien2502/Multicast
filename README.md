@@ -6,22 +6,22 @@ Dự án bài tập lập trình mạng mô phỏng lệnh `net send` sử dụn
 
 ## 📌 1. Yêu cầu chức năng đã đáp ứng
 
-- Thực hiện lệnh: `net send {IP | group | *} message`
+- **Thực hiện lệnh**: `net send {IP | group | *} message`
   - **`IP` (Unicast)**: Gửi tin nhắn trực tiếp đến 1 máy đích cụ thể theo địa chỉ IP.
-  - **`group` (Multicast)**: Gửi tin nhắn đến tất cả các máy đã tham gia (join) vào nhóm đó (ví dụ `group1`, `it`, ...).
-  - **`*` (Broadcast toàn mạng)**: Gửi tin nhắn đến tất cả các máy đang mở chương trình trong mạng.
+  - **`group` (Multicast)**: Gửi tin nhắn đến tất cả các máy đã tham gia (join) vào nhóm đó (ví dụ `group1`, `it`, ... theo dải IP `239.1.x.y`).
+  - **`*` (Broadcast UDP thuần)**: Gửi tin nhắn Broadcast đến toàn bộ mạng LAN qua địa chỉ Subnet Broadcast / `255.255.255.255`.
 - **Hiển thị tại máy nhận**: Tự động hiển thị tin nhắn kèm theo địa chỉ IP của máy gửi:
   `📩 [TIN NHẮN ĐẾN] từ IP: <IP_GỬI>`
 
 ---
 
-## 🏗️ 2. Kiến trúc & Đặc điểm kỹ thuật (P2P Multicast)
+## 🏗️ 2. Kiến trúc & Đặc điểm kỹ thuật
 
-- **Mô hình**: Peer-to-Peer (P2P) thuần. Mỗi node vừa là người gửi (Sender) vừa là người lắng nghe (Listener) chạy song song trên 2 Thread độc lập.
-- **Không cần Server trung gian**: Các máy tự động phát hiện và nhận gói tin thông qua các địa chỉ Multicast IP (Class D: `224.0.0.0` - `239.255.255.255`).
-- **Địa chỉ đại diện**:
-  - Toàn mạng (`*`): `239.255.255.255` (Mặc định mọi máy khởi động đều tự động join).
-  - Nhóm (`group`): Ánh xạ tên nhóm sang dải `239.1.x.y` (có sẵn `group1` = `239.1.1.1`, `group2` = `239.1.1.2`, hoặc tên nhóm tùy ý).
+- **Mô hình**: Peer-to-Peer (P2P). Mỗi node vừa là người gửi (Sender) vừa là người lắng nghe (Listener) chạy song song trên các Thread độc lập.
+- **Không cần Server trung gian**:
+  - Gửi cá nhân: Sử dụng UDP Unicast trực tiếp đến IP máy nhận.
+  - Gửi nhóm máy: Sử dụng UDP Multicast (Class D: `239.1.x.y`) với cơ chế `joinGroup` / `leaveGroup`.
+  - Gửi toàn mạng (`*`): Sử dụng UDP Broadcast thuần (`setBroadcast(true)` tới Subnet Broadcast Address / `255.255.255.255`).
 
 ---
 
